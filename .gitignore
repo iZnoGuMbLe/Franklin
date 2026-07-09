@@ -1,0 +1,39 @@
+# --- Секреты и окружение (НИКОГДА не коммитить) ---
+.env
+**/.env
+*.env
+!.env.example
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# --- IDE ---
+.idea/
+.vscode/
+*.swp
+
+# --- OS ---
+.DS_Store
+
+# --- Node / frontend ---
+node_modules/
+dist/
+.vite/
+
+# --- Прочее ---
+*.log
+/tmp/
+uploads/
+PLAN_60_DAYS.md
+ROADMAP.md
