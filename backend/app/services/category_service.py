@@ -1,6 +1,7 @@
 
 from app.repositories.category import CategoryRepository
 from app.schemas import CategoryResponse, CategoryUpdate, CategoryCreate
+from app.core import NotFoundException
 
 
 
@@ -14,26 +15,26 @@ class CategoryService:
         return CategoryResponse.model_validate(categorya)
 
 
-    async def get_category(self, category_id: int) -> CategoryResponse | None:
+    async def get_category(self, category_id: int) -> CategoryResponse:
         categorya = await self.repository.get_by_id(category_id)
         if not categorya:
-            return None
+            raise NotFoundException(entity="Category", entity_id=category_id)
         return CategoryResponse.model_validate(categorya)
 
     async def list_categories(self, include_archived: bool = False) -> list[CategoryResponse]:
         list_of_categories = await self.repository.list_all(include_archived=include_archived)
         return [CategoryResponse.model_validate(cat) for cat in list_of_categories]
 
-    async def update_category(self, category_id: int, data: CategoryUpdate) -> CategoryResponse | None:
+    async def update_category(self, category_id: int, data: CategoryUpdate) -> CategoryResponse:
         categoria = await self.repository.update(category_id=category_id,data=data)
         if not categoria:
-            return None
+            raise NotFoundException(entity="Category", entity_id=category_id)
         return CategoryResponse.model_validate(categoria)
 
-    async def delete_category(self, category_id: int) -> bool:
+    async def delete_category(self, category_id: int) -> bool | NotFoundException:
         categoria = await self.repository.delete(category_id)
         if not categoria:
-            return False
+            raise NotFoundException(entity="Category", entity_id=category_id)
         return True
 
 

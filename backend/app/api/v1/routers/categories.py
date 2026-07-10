@@ -1,6 +1,6 @@
 
 from app.api.v1.dependencies import  get_category_service
-from fastapi import Depends, APIRouter, HTTPException, status
+from fastapi import Depends, APIRouter, status
 from app.services import  CategoryService
 from app.schemas import CategoryResponse, CategoryUpdate, CategoryCreate
 
@@ -13,8 +13,6 @@ async def create_category(data:CategoryCreate, service: CategoryService = Depend
 @router.get('/{category_id}')
 async def get_category(category_id: int, service: CategoryService = Depends(get_category_service)) -> CategoryResponse:
     result = await service.get_category(category_id)
-    if result is None:
-        raise HTTPException(status_code=404,detail="Category not found")
     return result
 
 @router.get('', response_model=list[CategoryResponse])
@@ -28,18 +26,14 @@ async def update_category(category_id: int,
                           data: CategoryUpdate,
                           service: CategoryService = Depends(get_category_service)) -> CategoryResponse:
     result = await service.update_category(category_id=category_id, data=data)
-    if result is None:
-        raise HTTPException(status_code=404, detail="Category not found")
     return result
 
 
 @router.delete('/{category_id}', status_code=status.HTTP_204_NO_CONTENT)
 async def delete_category(category_id: int,
                           service: CategoryService = Depends(get_category_service)):
-    result = await service.delete_category(category_id=category_id)
-    if not result:
-        raise HTTPException(status_code=404, detail="Category not found")
-    return None
+    await service.delete_category(category_id=category_id)
+
 
 
 @router.post("/{category_id}/archive")

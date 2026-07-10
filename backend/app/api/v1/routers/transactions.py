@@ -1,4 +1,4 @@
-from fastapi import Depends, APIRouter, HTTPException, status
+from fastapi import Depends, APIRouter, status
 
 from app.schemas.transaction import TransactionResponse,TransactionUpdate,TransactionCreate
 from app.services.transaction_service import TransactionService
@@ -22,8 +22,6 @@ async def get_transaction(
 ) -> TransactionResponse:
 
     response = await service.get_transaction(transaction_id=transaction_id)
-    if response is None:
-        raise HTTPException(status_code=404, detail='Transaction not found')
 
     return response
 
@@ -36,8 +34,6 @@ async def update_transaction(
 ) -> TransactionResponse:
 
     response = await service.update_transaction(transaction_id=transaction_id, data=data)
-    if response is None:
-        raise HTTPException(status_code=404, detail='Transaction not found')
 
     return response
 
@@ -52,8 +48,6 @@ async def delete_transaction(
         transaction_id: int,
         service: TransactionService = Depends(get_transaction_service)
 ):
-    response = await service.delete_transaction(transaction_id=transaction_id)
-    if not response:
-        raise HTTPException(status_code=404, detail='Transaction not found')
+    await service.delete_transaction(transaction_id=transaction_id)
 
-    return None
+

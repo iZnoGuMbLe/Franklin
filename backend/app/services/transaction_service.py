@@ -1,6 +1,6 @@
 from app.schemas.transaction import TransactionResponse, TransactionUpdate, TransactionCreate
 from app.repositories.transaction import TransactionRepository
-
+from app.core import NotFoundException
 
 class TransactionService:
 
@@ -8,24 +8,24 @@ class TransactionService:
         self.repository = repository
 
 
-    async def create_transaction(self, data:TransactionCreate) -> TransactionResponse | None:
+    async def create_transaction(self, data:TransactionCreate) -> TransactionResponse:
         transaction = await self.repository.create(data=data)
         return TransactionResponse.model_validate(transaction)
 
 
-    async def get_transaction(self,transaction_id: int) -> TransactionResponse | None:
+    async def get_transaction(self,transaction_id: int) -> TransactionResponse:
         transaction = await self.repository.get_by_id(transaction_id=transaction_id)
         if not transaction:
-            return None
+            raise NotFoundException(entity="Transaction", entity_id=transaction_id)
         return TransactionResponse.model_validate(transaction)
 
 
 
-    async def update_transaction(self,transaction_id: int, data: TransactionUpdate ) -> TransactionResponse | None:
+    async def update_transaction(self,transaction_id: int, data: TransactionUpdate ) -> TransactionResponse:
         updated_transaction = await self.repository.update(
             transaction_id=transaction_id, data=data)
         if not updated_transaction:
-            return None
+            raise NotFoundException(entity="Transaction", entity_id=transaction_id)
         return TransactionResponse.model_validate(updated_transaction)
 
 
@@ -36,4 +36,7 @@ class TransactionService:
 
 
     async def delete_transaction(self, transaction_id) -> bool:
+        transaction = await self.repository.get_by_id(transaction_id=transaction_id)
+        if not transaction:
+            raise NotFoundException(entity="Transaction", entity_id=transaction_id)
         return await self.repository.delete(transaction_id=transaction_id)
