@@ -7,7 +7,7 @@ from app.api.v1.dependencies import get_transaction_service
 router = APIRouter(prefix='/transactions', tags=['transactions'])
 
 
-@router.post(response_model=TransactionResponse, path='')
+@router.post(response_model=TransactionResponse, path='', status_code=status.HTTP_201_CREATED)
 async def create_transaction(
         data: TransactionCreate,
         service: TransactionService = Depends(get_transaction_service)
@@ -26,7 +26,7 @@ async def get_transaction(
     return response
 
 
-@router.patch(response_model=TransactionResponse,path='/{transaction_id}')
+@router.patch(response_model=TransactionResponse,path='/{transaction_id}', status_code=status.HTTP_200_OK)
 async def update_transaction(
         transaction_id: int,
         data: TransactionUpdate,
