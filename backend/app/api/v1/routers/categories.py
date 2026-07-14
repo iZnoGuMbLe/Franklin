@@ -40,8 +40,6 @@ async def delete_category(category_id: int,
 async def archive_category(category_id: int,
                           service: CategoryService = Depends(get_category_service)) -> CategoryResponse:
     result = await service.archive_category(category_id=category_id)
-    if result is None:
-        raise HTTPException(status_code=404, detail="Category not found")
     return result
 
 
