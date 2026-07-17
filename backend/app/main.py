@@ -10,10 +10,10 @@ import app.models
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    async with async_engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-
+    print('приложение запустилось, смотри вот lifespan как работает')
     yield
+    print('а тут когда оффнул приложение, тут можно код прописать какой-нибудь')
+    await async_engine.dispose()
 
 app = FastAPI(title=settings.app_name, lifespan=lifespan)
 

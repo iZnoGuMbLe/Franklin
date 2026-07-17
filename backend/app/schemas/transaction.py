@@ -8,7 +8,7 @@ from app.models.transaction import CategorizationMethod, TransactionSource
 
 class TransactionCreate(BaseModel):
     date: date_type
-    amount: Decimal
+    amount: Decimal = Field(..., max_digits=14, decimal_places=2)
     description: str = Field(..., min_length=1, max_length=500)
     currency: str = Field(default="RUB", max_length=3)
     category_id: int | None = None
@@ -20,9 +20,9 @@ class TransactionCreate(BaseModel):
 
 class TransactionUpdate(BaseModel):
     date: date_type | None = None
-    amount: Decimal | None = None
+    amount: Decimal | None = Field(max_digits=14, decimal_places=2)
     description: str | None = Field(default=None, min_length=1, max_length=500)
-    currency: str | None = None
+    currency: str | None = Field(max_length=3)
     category_id: int | None = None
     merchant_name: str | None = None
     is_income: bool | None = None
@@ -34,7 +34,7 @@ class TransactionResponse(BaseModel):
 
     id: int
     date: date_type
-    amount: Decimal
+    amount: Decimal = Field(...,max_digits=14, decimal_places=2)
     currency: str
     description: str
     merchant_name: str | None
