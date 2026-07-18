@@ -83,8 +83,8 @@ async def test_transactions_404(client:AsyncClient, method, url):
 
 async def test_list_of_t(client:AsyncClient):
     payloads = [
-        {"date": "2026-07-11", "amount": "1500", "description": "First"},
-          {"date": "2026-07-12", "amount": "300", "description": "Second"}
+        {"date": "2026-07-11", "amount": "1500", "description": "First", "is_income": "True"},
+          {"date": "2026-07-12", "amount": "300", "description": "Second", "is_income": "False"}
     ]
 
     for p in payloads:
@@ -97,3 +97,53 @@ async def test_list_of_t(client:AsyncClient):
     assert len(response.json()) == 2
     descriptions = {t["description"] for t in response.json()}
     assert descriptions == {"First", "Second"}
+
+async def test_list_of_t_income(client:AsyncClient):
+    payloads = [
+        {"date": "2026-07-11", "amount": "1500", "description": "First", "is_income": "True"},
+        {"date": "2026-07-12", "amount": "300", "description": "Second", "is_income": "False"}
+    ]
+
+    for p in payloads:
+        data = await client.post('api/v1/transactions', json=p)
+        assert data.status_code == 201
+
+    response = await client.get('api/v1/transactions', params={"is_income":True})
+    assert response.status_code == 200
+    assert len(response.json()) == 1
+    once_more = await client.get(url='api/v1/transactions')
+    assert once_more.status_code == 200
+    assert len(once_more.json()) == 2
+
+
+async def test_tlist_period(client:AsyncClient):
+    payloads = [
+        {"date": "2026-07-11", "amount": "1500", "description": "First", "is_income": "True"},
+        {"date": "2026-07-14", "amount": "300", "description": "Second", "is_income": "False"},
+        {"date": "2026-08-14", "amount": "3040", "description": "Third", "is_income": "False"}
+    ]
+
+    for p in payloads:
+        data = await client.post(url='api/v1/transactions', json=p)
+        assert data.status_code == 201
+
+
+    response = await client.get(url='api/v1/transactions', params={"date_to":"2026-07-14"})
+    assert response.status_code == 200
+    assert len(response.json()) == 2
+
+    once_more = await client.get(url='api/v1/transactions', params={"date_from":"2026-07-14", "date_to":"2026-07-14"})
+    assert once_more.status_code == 200
+    assert len(once_more.json()) == 1
+
+
+async def test_tlist_sort_newest(client:AsyncClient):
+    payloads = [
+        {"date": "2026-07-11", "amount": "1500", "description": "First", "is_income": "True"},
+        {"date": "2026-07-14", "amount": "300", "description": "Second", "is_income": "False"},
+        {"date": "2026-08-14", "amount": "3040", "description": "Third", "is_income": "False"}
+    ]
+
+    for p in payloads:
+        data = await client.post(url='api/v1/transactions', json=p)
+        assert data.status_code == 201
