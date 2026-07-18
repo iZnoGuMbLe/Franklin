@@ -1,7 +1,9 @@
 import hashlib
+from datetime import date
+from decimal import Decimal
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, desc
 
 from app.models.transaction import TransactionModel
 from app.schemas.transaction import TransactionCreate,TransactionUpdate
@@ -27,8 +29,31 @@ class TransactionRepository:
 
         return result.scalar_one_or_none()
 
-    async def list_of_transactions(self) -> list[TransactionModel]:
-        query = select(TransactionModel).order_by(TransactionModel.date)
+    async def list_of_transactions(self,
+                date_from: date | None = None,
+                date_to: date | None = None,
+                category_id: int | None = None,
+                is_income: bool | None = None,
+                min_amount: Decimal | None = None,
+                max_amount: Decimal | None = None
+            ) -> list[TransactionModel]:
+
+
+        query = select(TransactionModel)
+        if date_from is not None:
+            query = query.where(TransactionModel.date >= date_from)
+        if date_to is not None:
+            query = query.where(TransactionModel.date <= date_to)
+        if category_id is not None:
+            query = query.where(TransactionModel.category_id == category_id)
+        if is_income is not None:
+            query = query.where(TransactionModel.is_income == is_income)
+        if min_amount is not None:
+            query = query.where(TransactionModel.amount >= min_amount)
+        if max_amount is not None:
+            query = query.where(TransactionModel.amount <= max_amount)
+
+        query = query.order_by(desc(TransactionModel.date), desc(TransactionModel.id))
         result = await self.session.execute(query)
 
         return list(result.scalars().all())

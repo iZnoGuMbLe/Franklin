@@ -1,3 +1,6 @@
+from datetime import date
+from decimal import Decimal
+
 from app.schemas.transaction import TransactionResponse, TransactionUpdate, TransactionCreate
 from app.repositories.transaction import TransactionRepository
 from app.core import NotFoundException
@@ -29,8 +32,17 @@ class TransactionService:
         return TransactionResponse.model_validate(updated_transaction)
 
 
-    async def list_of_transactions(self) -> list[TransactionResponse]:
-        result = await self.repository.list_of_transactions()
+    async def list_of_transactions(self,
+                                   date_from: date | None = None,
+                                   date_to: date | None = None,
+                                    category_id: int | None = None,
+                                    is_income: bool | None = None,
+                                    min_amount: Decimal | None = None,
+                                    max_amount: Decimal | None = None
+    ) -> list[TransactionResponse]:
+        result = await self.repository.list_of_transactions(
+            date_from=date_from, date_to=date_to, category_id=category_id, is_income=is_income, min_amount=min_amount,max_amount=max_amount
+        )
         return [TransactionResponse.model_validate(x) for x in result]
 
 
