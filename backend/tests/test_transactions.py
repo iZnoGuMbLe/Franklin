@@ -140,10 +140,14 @@ async def test_tlist_period(client:AsyncClient):
 async def test_tlist_sort_newest(client:AsyncClient):
     payloads = [
         {"date": "2026-07-11", "amount": "1500", "description": "First", "is_income": "True"},
-        {"date": "2026-07-14", "amount": "300", "description": "Second", "is_income": "False"},
-        {"date": "2026-08-14", "amount": "3040", "description": "Third", "is_income": "False"}
+        {"date": "2026-07-12", "amount": "300", "description": "Second", "is_income": "False"},
+        {"date": "2026-07-13", "amount": "3040", "description": "Third", "is_income": "False"}
     ]
 
     for p in payloads:
         data = await client.post(url='api/v1/transactions', json=p)
         assert data.status_code == 201
+
+    response = await client.get(url='api/v1/transactions')
+    assert response.status_code == 200
+    assert response.json()[0]["date"] == "2026-07-13"
